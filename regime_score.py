@@ -2,6 +2,7 @@ import yfinance as yf
 import pandas as pd
 import ta
 import json
+import os
 from datetime import datetime
 
 SECTORS = {
@@ -24,6 +25,30 @@ def get_rsi(series, period=14):
 def get_sma(series, period):
     return series.rolling(period).mean().iloc[-1]
 
+def compute_breadth():
+    print("Computing breadth from sector ETFs...")
+    etfs = list(SECTORS.keys())
+    above50 = 0
+    above200 = 0
+    total = 0
+    for etf in etfs:
+        try:
+            data = yf.download(etf, period='1y', auto_adjust=True, progress=False)
+            closes = data['Close'].squeeze()
+            price = float(closes.iloc[-1])
+            sma50 = float(closes.rolling(50).mean().iloc[-1])
+            sma200 = float(closes.rolling(200).mean().iloc[-1])
+            if price > sma50:
+                above50 += 1
+            if price > sma200:
+                above200 += 1
+            total += 1
+        except:
+            pass
+    if total == 0:
+        return None, None
+    return round((above50 / total) * 100, 1), round((above200 / total) * 100, 1)
+
 def fetch_regime():
     print("Fetching SPY data...")
     spy_data = yf.download('SPY', period='1y', auto_adjust=True, progress=False)
@@ -43,18 +68,7 @@ def fetch_regime():
     vix3m = round(float(vix3m_data['Close'].squeeze().iloc[-1]), 2)
     vix_ratio = round(vix_spot / vix3m, 3)
 
-    print("Fetching breadth data...")
-    try:
-        b50_data = yf.download('^SP500-50', period='5d', auto_adjust=True, progress=False)
-        breadth50 = round(float(b50_data['Close'].squeeze().iloc[-1]), 1)
-    except:
-        breadth50 = None
-
-    try:
-        b200_data = yf.download('^SP500-200', period='5d', auto_adjust=True, progress=False)
-        breadth200 = round(float(b200_data['Close'].squeeze().iloc[-1]), 1)
-    except:
-        breadth200 = None
+    breadth50, breadth200 = compute_breadth()
 
     print("Fetching HYG data...")
     hyg_data = yf.download('HYG', period='100d', auto_adjust=True, progress=False)
@@ -76,7 +90,7 @@ def fetch_regime():
             else:
                 status = 'Neutral'
             sector_results[etf] = {'name': name, 'rsi': rsi, 'status': status}
-        except Exception as e:
+        except:
             sector_results[etf] = {'name': name, 'rsi': None, 'status': 'Unknown'}
 
     bullish_sectors = sum(1 for v in sector_results.values() if v['status'] == 'Bullish')
@@ -146,10 +160,42 @@ def fetch_regime():
 
     return result
 
+def update_history(data):
+    history_path = 'data/regime_history.json'
+    if os.path.exists(history_path):
+        with open(history_path, 'r') as f:
+            history = json.load(f)
+    else:
+        history = []
+
+    entry = {
+        'date': data['date'],
+        'score': data['score'],
+        'regime': data['regime'],
+        'spy_price': data['spy']['price'],
+        'vix_spot': data['vix']['spot'],
+        'vix_ratio': data['vix']['ratio'],
+        'breadth50': data['breadth']['above_sma50'],
+        'breadth200': data['breadth']['above_sma200'],
+        'bullish_sectors': data['bullish_sectors']
+    }
+
+    dates = [h['date'] for h in history]
+    if data['date'] not in dates:
+        history.append(entry)
+
+    history = sorted(history, key=lambda x: x['date'])
+
+    with open(history_path, 'w') as f:
+        json.dump(history, f, indent=2)
+
+    print(f"History updated — {len(history)} weekly entries")
+
 if __name__ == '__main__':
     print("Starting market regime scoring...")
     data = fetch_regime()
     with open('data/regime_latest.json', 'w') as f:
         json.dump(data, f, indent=2)
+    update_history(data)
     print(f"\nDone! Score: {data['score']}/9 — {data['regime']}")
-    print(f"Saved to data/regime_latest.json")
+    print(f"Saved to data/regime_latest.json and data/regime_history.json")

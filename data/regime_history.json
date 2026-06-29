@@ -1,0 +1,13 @@
+[
+  {
+    "date": "2026-06-29",
+    "score": 6,
+    "regime": "BULLISH",
+    "spy_price": 728.99,
+    "vix_spot": 18.41,
+    "vix_ratio": 0.872,
+    "breadth50": 63.0,
+    "breadth200": 64.0,
+    "bullish_sectors": 5
+  }
+]
