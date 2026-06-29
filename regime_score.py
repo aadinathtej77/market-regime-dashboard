@@ -81,7 +81,6 @@ def fetch_regime():
 
     bullish_sectors = sum(1 for v in sector_results.values() if v['status'] == 'Bullish')
 
-    # Scoring
     score = 0
     components = {}
 
@@ -137,4 +136,20 @@ def fetch_regime():
             'above_sma200': breadth200
         },
         'hyg': {
-            'price': hyg
+            'price': hyg_price,
+            'sma50': hyg_sma50
+        },
+        'components': components,
+        'sectors': sector_results,
+        'bullish_sectors': bullish_sectors
+    }
+
+    return result
+
+if __name__ == '__main__':
+    print("Starting market regime scoring...")
+    data = fetch_regime()
+    with open('data/regime_latest.json', 'w') as f:
+        json.dump(data, f, indent=2)
+    print(f"\nDone! Score: {data['score']}/9 — {data['regime']}")
+    print(f"Saved to data/regime_latest.json")
