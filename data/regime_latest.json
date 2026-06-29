@@ -1,49 +1,93 @@
 {
-  "date": "2026-06-28",
-  "score": 7,
+  "date": "2026-06-29",
+  "score": 6,
   "regime": "BULLISH",
   "spy": {
-    "price": 728.99,
-    "sma50": 698.45,
-    "sma200": 672.31,
-    "rsi": 58.2
+    "price": 741.0,
+    "sma50": 733.51,
+    "sma200": 687.32,
+    "rsi": 52.3
   },
   "vix": {
-    "spot": 18.41,
-    "vix3m": 21.10,
-    "ratio": 0.872,
-    "change_5d": -0.45
+    "spot": 17.66,
+    "vix3m": 19.53,
+    "ratio": 0.904,
+    "change_5d": 0.38
   },
   "breadth": {
-    "above_sma50": 63.0,
-    "above_sma200": 64.0
+    "above_sma50": 454.4,
+    "above_sma200": null
   },
   "hyg": {
-    "price": 79.92,
-    "sma50": 79.34
+    "price": 80.01,
+    "sma50": 79.66
   },
   "components": {
     "spy_above_sma50": true,
     "sma50_above_sma200": true,
     "breadth_sma50": true,
-    "breadth_sma200": true,
-    "sectors_bullish": true,
+    "breadth_sma200": false,
+    "sectors_bullish": false,
     "vix_contango": true,
     "hyg_above_sma50": true,
-    "vix_falling": true
+    "vix_falling": false
   },
   "sectors": {
-    "XLB": {"name": "Materials", "rsi": 53.6, "status": "Neutral"},
-    "XLC": {"name": "Communication", "rsi": 50.3, "status": "Neutral"},
-    "XLE": {"name": "Energy", "rsi": 42.1, "status": "Bearish"},
-    "XLF": {"name": "Financials", "rsi": 52.7, "status": "Neutral"},
-    "XLI": {"name": "Industrials", "rsi": 53.9, "status": "Neutral"},
-    "XLK": {"name": "Technology", "rsi": 61.3, "status": "Bullish"},
-    "XLP": {"name": "Consumer Staples", "rsi": 56.7, "status": "Bullish"},
-    "XLRE": {"name": "Real Estate", "rsi": 60.2, "status": "Bullish"},
-    "XLU": {"name": "Utilities", "rsi": 57.8, "status": "Bullish"},
-    "XLV": {"name": "Health Care", "rsi": 46.2, "status": "Neutral"},
-    "XLY": {"name": "Consumer Disc", "rsi": 57.4, "status": "Bullish"}
+    "XLB": {
+      "name": "Materials",
+      "rsi": 46.3,
+      "status": "Neutral"
+    },
+    "XLC": {
+      "name": "Communication",
+      "rsi": 38.5,
+      "status": "Bearish"
+    },
+    "XLE": {
+      "name": "Energy",
+      "rsi": 38.0,
+      "status": "Bearish"
+    },
+    "XLF": {
+      "name": "Financials",
+      "rsi": 61.8,
+      "status": "Bullish"
+    },
+    "XLI": {
+      "name": "Industrials",
+      "rsi": 60.8,
+      "status": "Bullish"
+    },
+    "XLK": {
+      "name": "Technology",
+      "rsi": 52.8,
+      "status": "Neutral"
+    },
+    "XLP": {
+      "name": "Consumer Staples",
+      "rsi": 54.0,
+      "status": "Neutral"
+    },
+    "XLRE": {
+      "name": "Real Estate",
+      "rsi": 57.4,
+      "status": "Bullish"
+    },
+    "XLU": {
+      "name": "Utilities",
+      "rsi": 63.3,
+      "status": "Bullish"
+    },
+    "XLV": {
+      "name": "Health Care",
+      "rsi": 72.6,
+      "status": "Bullish"
+    },
+    "XLY": {
+      "name": "Consumer Disc",
+      "rsi": 52.4,
+      "status": "Neutral"
+    }
   },
   "bullish_sectors": 5
 }
