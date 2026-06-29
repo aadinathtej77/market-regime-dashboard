@@ -1,6 +1,6 @@
 {
   "date": "2026-06-29",
-  "score": 6,
+  "score": 7,
   "regime": "BULLISH",
   "spy": {
     "price": 741.0,
@@ -9,14 +9,14 @@
     "rsi": 52.3
   },
   "vix": {
-    "spot": 17.66,
+    "spot": 17.65,
     "vix3m": 19.53,
     "ratio": 0.904,
-    "change_5d": 0.38
+    "change_5d": 0.37
   },
   "breadth": {
-    "above_sma50": 454.4,
-    "above_sma200": null
+    "above_sma50": 63.6,
+    "above_sma200": 90.9
   },
   "hyg": {
     "price": 80.01,
@@ -26,7 +26,7 @@
     "spy_above_sma50": true,
     "sma50_above_sma200": true,
     "breadth_sma50": true,
-    "breadth_sma200": false,
+    "breadth_sma200": true,
     "sectors_bullish": false,
     "vix_contango": true,
     "hyg_above_sma50": true,
