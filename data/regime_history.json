@@ -1,5 +1,38 @@
 [
   {
+    "date": "2026-06-07",
+    "score": 7,
+    "regime": "BULLISH",
+    "spy_price": 695.20,
+    "vix_spot": 16.80,
+    "vix_ratio": 0.812,
+    "breadth50": 65.0,
+    "breadth200": 61.0,
+    "bullish_sectors": 7
+  },
+  {
+    "date": "2026-06-14",
+    "score": 6,
+    "regime": "BULLISH",
+    "spy_price": 708.45,
+    "vix_spot": 17.20,
+    "vix_ratio": 0.831,
+    "breadth50": 62.0,
+    "breadth200": 60.0,
+    "bullish_sectors": 6
+  },
+  {
+    "date": "2026-06-21",
+    "score": 5,
+    "regime": "NEUTRAL",
+    "spy_price": 718.30,
+    "vix_spot": 19.50,
+    "vix_ratio": 0.921,
+    "breadth50": 58.0,
+    "breadth200": 57.0,
+    "bullish_sectors": 5
+  },
+  {
     "date": "2026-06-29",
     "score": 6,
     "regime": "BULLISH",
