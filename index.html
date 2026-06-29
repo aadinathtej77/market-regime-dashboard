@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Regime Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #222; padding: 20px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; }
+  .score-header { display: flex; align-items: center; gap: 20px; }
+  .score-ring { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; border: 3px solid; flex-shrink: 0; }
+  .bull { color: #0C447C; border-color: #0C447C; background: #E6F1FB; }
+  .bear { color: #791F1F; border-color: #791F1F; background: #FCEBEB; }
+  .neut { color: #444; border-color: #888; background: #F1EFE8; }
+  .regime-label { font-size: 22px; font-weight: 500; }
+  .regime-date { font-size: 13px; color: #888; margin-top: 4px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+  .tag-bull { background: #E6F1FB; color: #0C447C; }
+  .tag-bear { background: #FCEBEB; color: #791F1F; }
+  .tag-neut { background: #F1EFE8; color: #444; }
+  .section-title { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+  .row { display: flex; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+  .row:last-child { border-bottom: none; }
+  .row-label { flex: 1; color: #555; }
+  .row-val { font-weight: 500; min-width: 130px; text-align: right; }
+  .sig { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 12px; margin-left: 10px; }
+  .sig-y { background: #EAF3DE; color: #27500A; }
+  .sig-n { background: #FCEBEB; color: #791F1F; }
+  .sig-c { background: #E6F1FB; color: #0C447C; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sector-row { display: flex; align-items: center; padding: 5px 0; border-bottom: 1px solid #f0f0f0; gap: 8px; font-size: 12px; }
+  .sector-row:last-child { border-bottom: none; }
+  .etf { font-weight: 500; width: 40px; }
+  .sname { flex: 1; color: #666; }
+  .bar-wrap { width: 80px; height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+  .bar { height: 5px; border-radius: 3px; }
+  .rsi-val { width: 32px; text-align: right; font-weight: 500; }
+  .loading { text-align: center; padding: 60px; color: #888; font-size: 15px; }
+  .error { text-align: center; padding: 40px; color: #A32D2D; font-size: 14px; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Market regime dashboard</h1>
+  <p class="subtitle">Automated weekly scoring — 9-point framework</p>
+  <div id="app"><div class="loading">Loading regime data...</div></div>
+</div>
+<script>
+const SECTOR_COLORS = { Bullish: { bar: '#639922', sig: '#27500A', bg: '#EAF3DE' }, Neutral: { bar: '#EF9F27', sig: '#633806', bg: '#FAEEDA' }, Bearish: { bar: '#E24B4A', sig: '#791F1F', bg: '#FCEBEB' } };
+
+function regimeClass(r) { return r === 'BULLISH' ? 'bull' : r === 'BEARISH' ? 'bear' : 'neut'; }
+function tagClass(r) { return r === 'BULLISH' ? 'tag-bull' : r === 'BEARISH' ? 'tag-bear' : 'tag-neut'; }
+function sigY(v) { return `<span class="sig sig-y">${v}</span>`; }
+function sigN(v) { return `<span class="sig sig-n">${v}</span>`; }
+function sigC(v) { return `<span class="sig sig-c">${v}</span>`; }
+function yn(bool, yesText, noText) { return bool ? sigY(yesText) : sigN(noText); }
+
+function render(d) {
+  const rc = regimeClass(d.regime);
+  const tc = tagClass(d.regime);
+  const c = d.components;
+  const sectors = Object.entries(d.sectors);
+  const sectorHTML = sectors.map(([etf, s]) => {
+    const col = SECTOR_COLORS[s.status] || SECTOR_COLORS.Neutral;
+    const pct = Math.min(100, Math.max(0, s.rsi || 50));
+    return `<div class="sector-row">
+      <span class="etf">${etf}</span>
+      <span class="sname">${s.name}</span>
+      <div class="bar-wrap"><div class="bar" style="width:${pct}%;background:${col.bar}"></div></div>
+      <span class="rsi-val">${s.rsi ?? '—'}</span>
+      <span class="sig" style="background:${col.bg};color:${col.sig}">${s.status}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <div class="score-header">
+        <div class="score-ring ${rc}">${d.score}/9</div>
+        <div>
+          <div class="regime-label">${d.regime} regime <span class="tag ${tc}">${d.score}/9</span></div>
+          <div class="regime-date">As of ${d.date}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Scoring components</div>
+      <div class="row"><span class="row-label">SPY > SMA50</span><span class="row-val">${d.spy.price} / ${d.spy.sma50}</span>${yn(c.spy_above_sma50, '+1 YES', '0 NO')}</div>
+      <div class="row"><span class="row-label">SMA50 > SMA200 (golden cross)</span><span class="row-val">${d.spy.sma50} / ${d.spy.sma200}</span>${yn(c.sma50_above_sma200, '+1 YES', '0 NO')}</div>
+      <div class="row"><span class="row-label">Breadth > SMA50 (>60% threshold)</span><span class="row-val">${d.breadth.above_sma50 ?? '—'}%</span>${yn(c.breadth_sma50, '+1 YES', '0 NO')}</div>
+      <div class="row"><span class="row-label">Breadth > SMA200 (>60% threshold)</span><span class="row-val">${d.breadth.above_sma200 ?? '—'}%</span>${yn(c.breadth_sma200, '+1 YES', '0 NO')}</div>
+      <div class="row"><span class="row-label">Sectors >= 7/11 bullish</span><span class="row-val">${d.bullish_sectors}/11</span>${yn(c.sectors_bullish, '+1 YES', '0 NO')}</div>
+      <div class="row"><span class="row-label">VIX term structure (×2 if contango)</span><span class="row-val">ratio ${d.vix.ratio}</span>${c.vix_contango ? sigC('+2 CONTANGO') : sigN('0 BACKWARDATION')}</div>
+      <div class="row"><span class="row-label">HYG > SMA50 (credit health)</span><span class="row-val">${d.hyg.price} / ${d.hyg.sma50}</span>${yn(c.hyg_above_sma50, '+1 YES', '0 NO')}</div>
+      <div class="row"><span class="row-label">VIX trend (falling over 5d)</span><span class="row-val">${d.vix.change_5d > 0 ? '+' : ''}${d.vix.change_5d}</span>${yn(c.vix_falling, '+1 YES', '0 NO')}</div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="section-title">SPY detail</div>
+        <div class="row"><span class="row-label">Price</span><span class="row-val">${d.spy.price}</span></div>
+        <div class="row"><span class="row-label">SMA 50</span><span class="row-val">${d.spy.sma50}</span></div>
+        <div class="row"><span class="row-label">SMA 200</span><span class="row-val">${d.spy.sma200}</span></div>
+        <div class="row"><span class="row-label">RSI (14)</span><span class="row-val">${d.spy.rsi}</span></div>
+      </div>
+      <div class="card">
+        <div class="section-title">VIX & volatility</div>
+        <div class="row"><span class="row-label">VIX spot</span><span class="row-val">${d.vix.spot}</span></div>
+        <div class="row"><span class="row-label">VIX3M</span><span class="row-val">${d.vix.vix3m}</span></div>
+        <div class="row"><span class="row-label">Ratio</span><span class="row-val">${d.vix.ratio}</span></div>
+        <div class="row"><span class="row-label">5-day change</span><span class="row-val">${d.vix.change_5d > 0 ? '+' : ''}${d.vix.change_5d}</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Sector dashboard — ${d.bullish_sectors}/11 bullish</div>
+      ${sectorHTML}
+    </div>
+
+    <div class="card">
+      <div class="section-title">Credit proxy — HYG</div>
+      <div class="row"><span class="row-label">HYG price</span><span class="row-val">${d.hyg.price}</span></div>
+      <div class="row"><span class="row-label">HYG SMA50</span><span class="row-val">${d.hyg.sma50}</span></div>
+      <div class="row"><span class="row-label">Status</span><span class="row-val"></span>${yn(c.hyg_above_sma50, 'BULLISH', 'BEARISH')}</div>
+    </div>
+  `;
+}
+
+fetch('data/regime_latest.json')
+  .then(r => { if (!r.ok) throw new Error('No data yet'); return r.json(); })
+  .then(render)
+  .catch(() => {
+    document.getElementById('app').innerHTML = '<div class="error">No regime data found yet.<br>Run regime_score.py locally first, or wait for the first automated Friday run.</div>';
+  });
+</script>
+</body>
+</html>
