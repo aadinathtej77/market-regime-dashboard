@@ -46,7 +46,7 @@ def compute_breadth():
     total = 0
     for etf in etfs:
         try:
-            data = yf.download(etf, period='1y', auto_adjust=True, progress=False)
+            data = yf.download(etf, period='5y', auto_adjust=True, progress=False)
             closes = safe_series(data)
             price = float(closes.iloc[-1])
             sma50 = float(closes.rolling(50).mean().iloc[-1])
@@ -64,7 +64,7 @@ def compute_breadth():
 
 def fetch_regime():
     print("Fetching SPY data...")
-   spy_data = yf.download('SPY', period='2y', auto_adjust=False, progress=False)
+   spy_data = yf.download('SPY', period='5y', auto_adjust=False, progress=False)
     spy = safe_series(spy_data)
     spy_price = round(float(spy.iloc[-1]), 2)
     sma50 = round(float(get_sma(spy, 50)), 2)
@@ -94,7 +94,7 @@ def fetch_regime():
     sector_results = {}
     for etf, name in SECTORS.items():
         try:
-           data = yf.download(etf, period='2y', auto_adjust=False, progress=False)
+           data = yf.download(etf, period='5y', auto_adjust=False, progress=False)
             closes = safe_series(data)
             rsi = round(float(get_weekly_rsi(closes)), 1)
             if rsi > 55:
