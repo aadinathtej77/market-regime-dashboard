@@ -206,7 +206,7 @@ def update_sector_history(data):
     else:
         history = []
 
-    sector_rsис = {}
+    sector_rsis = {}
     for etf, values in data['sectors'].items():
         if values['rsi'] is not None:
             sector_rsis[etf] = values['rsi']
