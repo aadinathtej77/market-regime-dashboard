@@ -44,6 +44,19 @@
   .chart-title { font-size: 13px; font-weight: 500; color: #555; margin-bottom: 6px; }
   .loading { text-align: center; padding: 60px; color: #888; font-size: 15px; }
   .error { text-align: center; padding: 40px; color: #A32D2D; font-size: 14px; }
+
+  /* Heatmap styles */
+  .heatmap-scroll { overflow-x: auto; }
+  .heatmap-table { border-collapse: collapse; width: 100%; min-width: 500px; font-size: 12px; }
+  .heatmap-table th { font-size: 11px; font-weight: 500; color: #888; padding: 4px 6px; text-align: center; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+  .heatmap-table th.sector-col { text-align: left; min-width: 110px; }
+  .heatmap-table td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #f9f9f9; }
+  .heatmap-table td.sector-label { text-align: left; font-weight: 500; color: #333; white-space: nowrap; }
+  .heatmap-cell { display: inline-flex; align-items: center; justify-content: center; gap: 2px; width: 52px; height: 28px; border-radius: 6px; font-size: 11px; font-weight: 500; }
+  .legend { display: flex; align-items: center; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #666; }
+  .legend-swatch { width: 14px; height: 14px; border-radius: 3px; }
+
   @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -60,12 +73,85 @@ const SECTOR_COLORS = {
   Bearish: { bar: '#E24B4A', sig: '#791F1F', bg: '#FCEBEB' }
 };
 
+const SECTOR_NAMES = {
+  XLB: 'Materials', XLC: 'Communication', XLE: 'Energy',
+  XLF: 'Financials', XLI: 'Industrials', XLK: 'Technology',
+  XLP: 'Consumer Staples', XLRE: 'Real Estate', XLU: 'Utilities',
+  XLV: 'Health Care', XLY: 'Consumer Disc'
+};
+
 function regimeClass(r) { return r === 'BULLISH' ? 'bull' : r === 'BEARISH' ? 'bear' : 'neut'; }
 function tagClass(r) { return r === 'BULLISH' ? 'tag-bull' : r === 'BEARISH' ? 'tag-bear' : 'tag-neut'; }
 function sigY(v) { return `<span class="sig sig-y">${v}</span>`; }
 function sigN(v) { return `<span class="sig sig-n">${v}</span>`; }
 function sigC(v) { return `<span class="sig sig-c">${v}</span>`; }
 function yn(bool, yesText, noText) { return bool ? sigY(yesText) : sigN(noText); }
+
+// RSI to colour: red (30) → white (50) → green (70)
+function rsiColor(rsi) {
+  if (rsi === null || rsi === undefined) return { bg: '#f5f5f5', text: '#aaa' };
+  if (rsi >= 70) return { bg: '#1a7a3a', text: '#fff' };
+  if (rsi >= 62) return { bg: '#4CAF50', text: '#fff' };
+  if (rsi >= 56) return { bg: '#8BC34A', text: '#333' };
+  if (rsi >= 50) return { bg: '#C8E6C9', text: '#333' };
+  if (rsi >= 45) return { bg: '#FFECB3', text: '#333' };
+  if (rsi >= 40) return { bg: '#FFCC80', text: '#333' };
+  if (rsi >= 35) return { bg: '#EF9A9A', text: '#333' };
+  return { bg: '#C62828', text: '#fff' };
+}
+
+function arrow(current, previous) {
+  if (previous === null || previous === undefined) return '';
+  const diff = current - previous;
+  if (diff > 1.5) return '<span style="color:#27500A">↑</span>';
+  if (diff < -1.5) return '<span style="color:#C62828">↓</span>';
+  return '<span style="color:#888">→</span>';
+}
+
+function renderHeatmap(sectorHistory) {
+  if (!sectorHistory || sectorHistory.length < 2) return '';
+  const weeks = sectorHistory.slice(-8);
+  const etfs = Object.keys(SECTOR_NAMES);
+
+  const headers = weeks.map(w => `<th>${w.date.slice(5)}</th>`).join('');
+
+  const rows = etfs.map(etf => {
+    const cells = weeks.map((week, i) => {
+      const rsi = week.sectors[etf];
+      const prev = i > 0 ? weeks[i-1].sectors[etf] : null;
+      const col = rsiColor(rsi);
+      const arw = arrow(rsi, prev);
+      return `<td>
+        <div class="heatmap-cell" style="background:${col.bg};color:${col.text}">
+          ${rsi ?? '—'} ${arw}
+        </div>
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td class="sector-label">${etf} <span style="color:#999;font-weight:400">${SECTOR_NAMES[etf]}</span></td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="card">
+      <div class="section-title">Sector rotation heatmap — RSI by week</div>
+      <div class="heatmap-scroll">
+        <table class="heatmap-table">
+          <thead><tr><th class="sector-col">Sector</th>${headers}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:#1a7a3a"></div>RSI 70+ overbought</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#8BC34A"></div>RSI 56–69 bullish</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#C8E6C9"></div>RSI 50–55 mild bull</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#FFCC80"></div>RSI 40–49 mild bear</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#C62828"></div>RSI &lt;35 oversold</div>
+        <div class="legend-item">↑ improving &nbsp; ↓ deteriorating &nbsp; → flat</div>
+      </div>
+    </div>`;
+}
 
 function makeChart(id, labels, datasets, yMin, yMax, stepSize) {
   new Chart(document.getElementById(id), {
@@ -91,14 +177,13 @@ function renderCharts(history) {
   const spyPrices = history.map(h => h.spy_price);
   const vixSpots = history.map(h => h.vix_spot);
 
-  const scoreBg = scores.map(s => s >= 6 ? '#E6F1FB' : s <= 3 ? '#FCEBEB' : '#F1EFE8');
   const scoreBorder = scores.map(s => s >= 6 ? '#0C447C' : s <= 3 ? '#791F1F' : '#888');
 
   makeChart('chart-score', labels, [{
     label: 'Regime score',
     data: scores,
     borderColor: '#378ADD',
-    backgroundColor: scoreBg,
+    backgroundColor: 'transparent',
     pointBackgroundColor: scoreBorder,
     pointBorderColor: scoreBorder,
     fill: false,
@@ -126,11 +211,12 @@ function renderCharts(history) {
   }], 0, undefined, 5);
 }
 
-function render(d, history) {
+function render(d, history, sectorHistory) {
   const rc = regimeClass(d.regime);
   const tc = tagClass(d.regime);
   const c = d.components;
   const sectors = Object.entries(d.sectors);
+  const hasHistory = history && history.length >= 2;
 
   const sectorHTML = sectors.map(([etf, s]) => {
     const col = SECTOR_COLORS[s.status] || SECTOR_COLORS.Neutral;
@@ -143,8 +229,6 @@ function render(d, history) {
       <span class="sig" style="background:${col.bg};color:${col.sig}">${s.status}</span>
     </div>`;
   }).join('');
-
-  const hasHistory = history && history.length >= 2;
 
   document.getElementById('app').innerHTML = `
     <div class="card">
@@ -202,6 +286,8 @@ function render(d, history) {
       ${sectorHTML}
     </div>
 
+    ${renderHeatmap(sectorHistory)}
+
     <div class="card">
       <div class="section-title">Credit proxy — HYG</div>
       <div class="row"><span class="row-label">HYG price</span><span class="row-val">${d.hyg.price}</span></div>
@@ -215,8 +301,9 @@ function render(d, history) {
 
 Promise.all([
   fetch('data/regime_latest.json').then(r => r.json()),
-  fetch('data/regime_history.json').then(r => r.json()).catch(() => null)
-]).then(([latest, history]) => render(latest, history))
+  fetch('data/regime_history.json').then(r => r.json()).catch(() => null),
+  fetch('data/sector_history.json').then(r => r.json()).catch(() => null)
+]).then(([latest, history, sectorHistory]) => render(latest, history, sectorHistory))
   .catch(() => {
     document.getElementById('app').innerHTML = '<div class="error">No regime data found yet.<br>Run regime_score.py locally or wait for the first automated Friday run.</div>';
   });

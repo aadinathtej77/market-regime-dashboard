@@ -25,15 +25,6 @@ def get_rsi(series, period=14):
 def get_sma(series, period):
     return series.rolling(period).mean().iloc[-1]
 
-def safe_last(data, column='Close'):
-    series = data[column]
-    if isinstance(series, pd.DataFrame):
-        series = series.iloc[:, 0]
-    series = series.dropna()
-    if len(series) == 0:
-        raise ValueError("No data returned")
-    return float(series.iloc[-1])
-
 def safe_series(data, column='Close'):
     series = data[column]
     if isinstance(series, pd.DataFrame):
@@ -207,11 +198,42 @@ def update_history(data):
 
     print(f"History updated — {len(history)} weekly entries")
 
+def update_sector_history(data):
+    history_path = 'data/sector_history.json'
+    if os.path.exists(history_path):
+        with open(history_path, 'r') as f:
+            history = json.load(f)
+    else:
+        history = []
+
+    sector_rsис = {}
+    for etf, values in data['sectors'].items():
+        if values['rsi'] is not None:
+            sector_rsis[etf] = values['rsi']
+
+    entry = {
+        'date': data['date'],
+        'sectors': sector_rsis
+    }
+
+    dates = [h['date'] for h in history]
+    if data['date'] not in dates:
+        history.append(entry)
+
+    history = sorted(history, key=lambda x: x['date'])
+    history = history[-12:]
+
+    with open(history_path, 'w') as f:
+        json.dump(history, f, indent=2)
+
+    print(f"Sector history updated — {len(history)} weekly entries")
+
 if __name__ == '__main__':
     print("Starting market regime scoring...")
     data = fetch_regime()
     with open('data/regime_latest.json', 'w') as f:
         json.dump(data, f, indent=2)
     update_history(data)
+    update_sector_history(data)
     print(f"\nDone! Score: {data['score']}/9 — {data['regime']}")
-    print(f"Saved to data/regime_latest.json and data/regime_history.json")
+    print(f"Saved to data/regime_latest.json, data/regime_history.json and data/sector_history.json")
