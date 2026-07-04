@@ -25,6 +25,21 @@ def get_rsi(series, period=14):
 def get_sma(series, period):
     return series.rolling(period).mean().iloc[-1]
 
+def safe_last(data, column='Close'):
+    series = data[column]
+    if isinstance(series, pd.DataFrame):
+        series = series.iloc[:, 0]
+    series = series.dropna()
+    if len(series) == 0:
+        raise ValueError("No data returned")
+    return float(series.iloc[-1])
+
+def safe_series(data, column='Close'):
+    series = data[column]
+    if isinstance(series, pd.DataFrame):
+        series = series.iloc[:, 0]
+    return series.dropna()
+
 def compute_breadth():
     print("Computing breadth from sector ETFs...")
     etfs = list(SECTORS.keys())
@@ -34,7 +49,7 @@ def compute_breadth():
     for etf in etfs:
         try:
             data = yf.download(etf, period='1y', auto_adjust=True, progress=False)
-            closes = data['Close'].squeeze()
+            closes = safe_series(data)
             price = float(closes.iloc[-1])
             sma50 = float(closes.rolling(50).mean().iloc[-1])
             sma200 = float(closes.rolling(200).mean().iloc[-1])
@@ -52,7 +67,7 @@ def compute_breadth():
 def fetch_regime():
     print("Fetching SPY data...")
     spy_data = yf.download('SPY', period='1y', auto_adjust=True, progress=False)
-    spy = spy_data['Close'].squeeze()
+    spy = safe_series(spy_data)
     spy_price = round(float(spy.iloc[-1]), 2)
     sma50 = round(float(get_sma(spy, 50)), 2)
     sma200 = round(float(get_sma(spy, 200)), 2)
@@ -60,20 +75,20 @@ def fetch_regime():
 
     print("Fetching VIX data...")
     vix_data = yf.download('^VIX', period='30d', auto_adjust=True, progress=False)
-    vix = vix_data['Close'].squeeze()
+    vix = safe_series(vix_data)
     vix_spot = round(float(vix.iloc[-1]), 2)
     vix_5d_change = round(float(vix.iloc[-1] - vix.iloc[-6]), 2)
 
     vix3m_data = yf.download('^VIX3M', period='30d', auto_adjust=True, progress=False)
-    vix3m_series = vix3m_data['Close'].squeeze()
-vix3m = round(float(vix3m_series) if isinstance(vix3m_series, float) else float(vix3m_series.iloc[-1]), 2)
+    vix3m_series = safe_series(vix3m_data)
+    vix3m = round(float(vix3m_series.iloc[-1]), 2)
     vix_ratio = round(vix_spot / vix3m, 3)
 
     breadth50, breadth200 = compute_breadth()
 
     print("Fetching HYG data...")
     hyg_data = yf.download('HYG', period='100d', auto_adjust=True, progress=False)
-    hyg = hyg_data['Close'].squeeze()
+    hyg = safe_series(hyg_data)
     hyg_price = round(float(hyg.iloc[-1]), 2)
     hyg_sma50 = round(float(get_sma(hyg, 50)), 2)
 
@@ -82,7 +97,7 @@ vix3m = round(float(vix3m_series) if isinstance(vix3m_series, float) else float(
     for etf, name in SECTORS.items():
         try:
             data = yf.download(etf, period='100d', auto_adjust=True, progress=False)
-            closes = data['Close'].squeeze()
+            closes = safe_series(data)
             rsi = round(float(get_rsi(closes)), 1)
             if rsi > 55:
                 status = 'Bullish'
