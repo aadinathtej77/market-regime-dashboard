@@ -23,7 +23,7 @@ def get_rsi(series, period=14):
     return ta.momentum.RSIIndicator(series, window=period).rsi().iloc[-1]
 
 def get_weekly_rsi(series, period=14):
-    weekly = series.resample('W').last().dropna()
+    weekly = series.resample('W-FRI').last().dropna()
     return ta.momentum.RSIIndicator(weekly, window=period).rsi().iloc[-1]
 
 def get_sma(series, period):
