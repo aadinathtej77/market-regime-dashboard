@@ -24,6 +24,9 @@ def get_rsi(series, period=14):
 
 def get_weekly_rsi(series, period=14):
     weekly = series.resample('W-FRI').last().dropna()
+    # Use longer warmup period for more accurate RSI calculation
+    if len(weekly) < period * 3:
+        raise ValueError("Not enough weekly data for RSI calculation")
     return ta.momentum.RSIIndicator(weekly, window=period).rsi().iloc[-1]
 
 def get_sma(series, period):
@@ -61,7 +64,7 @@ def compute_breadth():
 
 def fetch_regime():
     print("Fetching SPY data...")
-    spy_data = yf.download('SPY', period='1y', auto_adjust=True, progress=False)
+   spy_data = yf.download('SPY', period='2y', auto_adjust=False, progress=False)
     spy = safe_series(spy_data)
     spy_price = round(float(spy.iloc[-1]), 2)
     sma50 = round(float(get_sma(spy, 50)), 2)
@@ -91,7 +94,7 @@ def fetch_regime():
     sector_results = {}
     for etf, name in SECTORS.items():
         try:
-            data = yf.download(etf, period='100d', auto_adjust=True, progress=False)
+           data = yf.download(etf, period='2y', auto_adjust=False, progress=False)
             closes = safe_series(data)
             rsi = round(float(get_weekly_rsi(closes)), 1)
             if rsi > 55:
