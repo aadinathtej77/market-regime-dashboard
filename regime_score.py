@@ -64,8 +64,9 @@ def fetch_regime():
     vix_spot = round(float(vix.iloc[-1]), 2)
     vix_5d_change = round(float(vix.iloc[-1] - vix.iloc[-6]), 2)
 
-    vix3m_data = yf.download('^VIX3M', period='5d', auto_adjust=True, progress=False)
-    vix3m = round(float(vix3m_data['Close'].squeeze().iloc[-1]), 2)
+    vix3m_data = yf.download('^VIX3M', period='30d', auto_adjust=True, progress=False)
+    vix3m_series = vix3m_data['Close'].squeeze()
+vix3m = round(float(vix3m_series) if isinstance(vix3m_series, float) else float(vix3m_series.iloc[-1]), 2)
     vix_ratio = round(vix_spot / vix3m, 3)
 
     breadth50, breadth200 = compute_breadth()
