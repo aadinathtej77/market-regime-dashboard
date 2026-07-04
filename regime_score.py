@@ -22,6 +22,10 @@ SECTORS = {
 def get_rsi(series, period=14):
     return ta.momentum.RSIIndicator(series, window=period).rsi().iloc[-1]
 
+def get_weekly_rsi(series, period=14):
+    weekly = series.resample('W').last().dropna()
+    return ta.momentum.RSIIndicator(weekly, window=period).rsi().iloc[-1]
+
 def get_sma(series, period):
     return series.rolling(period).mean().iloc[-1]
 
@@ -62,7 +66,7 @@ def fetch_regime():
     spy_price = round(float(spy.iloc[-1]), 2)
     sma50 = round(float(get_sma(spy, 50)), 2)
     sma200 = round(float(get_sma(spy, 200)), 2)
-    spy_rsi = round(float(get_rsi(spy)), 1)
+    spy_rsi = round(float(get_weekly_rsi(spy)), 1)
 
     print("Fetching VIX data...")
     vix_data = yf.download('^VIX', period='30d', auto_adjust=True, progress=False)
@@ -89,7 +93,7 @@ def fetch_regime():
         try:
             data = yf.download(etf, period='100d', auto_adjust=True, progress=False)
             closes = safe_series(data)
-            rsi = round(float(get_rsi(closes)), 1)
+            rsi = round(float(get_weekly_rsi(closes)), 1)
             if rsi > 55:
                 status = 'Bullish'
             elif rsi < 45:
