@@ -64,7 +64,7 @@ def compute_breadth():
 
 def fetch_regime():
     print("Fetching SPY data...")
-   spy_data = yf.download('SPY', period='5y', auto_adjust=False, progress=False)
+    spy_data = yf.download('SPY', period='5y', auto_adjust=False, progress=False)
     spy = safe_series(spy_data)
     spy_price = round(float(spy.iloc[-1]), 2)
     sma50 = round(float(get_sma(spy, 50)), 2)
