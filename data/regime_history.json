@@ -75,5 +75,16 @@
     "breadth50": 63.6,
     "breadth200": 81.8,
     "bullish_sectors": 7
+  },
+  {
+    "date": "2026-07-25",
+    "score": 7,
+    "regime": "BULLISH",
+    "spy_price": 738.93,
+    "vix_spot": 18.58,
+    "vix_ratio": 0.905,
+    "breadth50": 63.6,
+    "breadth200": 81.8,
+    "bullish_sectors": 7
   }
 ]
