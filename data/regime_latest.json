@@ -1,26 +1,26 @@
 {
-  "date": "2026-09-25",
+  "date": "2026-10-03",
   "score": 4,
   "regime": "NEUTRAL",
   "spy": {
-    "price": 771.35,
-    "sma50": 761.57,
-    "sma200": 718.45,
-    "rsi": 63.1
+    "price": 763.99,
+    "sma50": 763.07,
+    "sma200": 720.03,
+    "rsi": 59.4
   },
   "vix": {
-    "spot": 14.87,
-    "vix3m": 17.93,
-    "ratio": 0.829,
-    "change_5d": 0.06
+    "spot": 15.31,
+    "vix3m": 18.01,
+    "ratio": 0.85,
+    "change_5d": 0.44
   },
   "breadth": {
-    "above_sma50": 36.4,
-    "above_sma200": 36.4
+    "above_sma50": 18.2,
+    "above_sma200": 27.3
   },
   "hyg": {
-    "price": 77.86,
-    "sma50": 78.88
+    "price": 76.9,
+    "sma50": 78.41
   },
   "components": {
     "spy_above_sma50": true,
@@ -35,57 +35,57 @@
   "sectors": {
     "XLB": {
       "name": "Materials",
-      "rsi": 44.8,
+      "rsi": 40.2,
       "status": "Bearish"
     },
     "XLC": {
       "name": "Communication",
-      "rsi": 51.6,
+      "rsi": 46.1,
       "status": "Neutral"
     },
     "XLE": {
       "name": "Energy",
-      "rsi": 57.7,
+      "rsi": 58.9,
       "status": "Bullish"
     },
     "XLF": {
       "name": "Financials",
-      "rsi": 49.1,
-      "status": "Neutral"
+      "rsi": 43.0,
+      "status": "Bearish"
     },
     "XLI": {
       "name": "Industrials",
-      "rsi": 44.0,
+      "rsi": 41.8,
       "status": "Bearish"
     },
     "XLK": {
       "name": "Technology",
-      "rsi": 67.3,
+      "rsi": 68.2,
       "status": "Bullish"
     },
     "XLP": {
       "name": "Consumer Staples",
-      "rsi": 42.1,
+      "rsi": 36.8,
       "status": "Bearish"
     },
     "XLRE": {
       "name": "Real Estate",
-      "rsi": 37.7,
+      "rsi": 34.4,
       "status": "Bearish"
     },
     "XLU": {
       "name": "Utilities",
-      "rsi": 30.7,
+      "rsi": 31.8,
       "status": "Bearish"
     },
     "XLV": {
       "name": "Health Care",
-      "rsi": 62.9,
+      "rsi": 56.3,
       "status": "Bullish"
     },
     "XLY": {
       "name": "Consumer Disc",
-      "rsi": 41.9,
+      "rsi": 39.6,
       "status": "Bearish"
     }
   },
