@@ -207,5 +207,16 @@
     "breadth50": 27.3,
     "breadth200": 36.4,
     "bullish_sectors": 3
+  },
+  {
+    "date": "2026-10-16",
+    "score": 3,
+    "regime": "BEARISH",
+    "spy_price": 763.25,
+    "vix_spot": 19.99,
+    "vix_ratio": 0.975,
+    "breadth50": 36.4,
+    "breadth200": 54.5,
+    "bullish_sectors": 3
   }
 ]
