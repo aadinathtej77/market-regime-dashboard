@@ -218,5 +218,16 @@
     "breadth50": 36.4,
     "breadth200": 54.5,
     "bullish_sectors": 3
+  },
+  {
+    "date": "2026-10-23",
+    "score": 4,
+    "regime": "NEUTRAL",
+    "spy_price": 759.97,
+    "vix_spot": 19.45,
+    "vix_ratio": 0.95,
+    "breadth50": 45.5,
+    "breadth200": 54.5,
+    "bullish_sectors": 3
   }
 ]
